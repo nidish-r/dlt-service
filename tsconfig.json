@@ -8,7 +8,15 @@
         "noUnusedLocals": true,
         "noImplicitReturns": true,
         "noUncheckedIndexedAccess": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "types": ["jest", "node"],
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "baseUrl": ".",
+        "paths": {
+          "@src/*": ["src/*"]
+        }
+    
     },
     "include": ["./src/**/*"],
     "exclude": ["./src/**/*.spec.ts"]

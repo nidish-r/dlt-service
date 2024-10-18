@@ -1,13 +1,17 @@
-import express from 'express';
+import express, { Request } from 'express';
 import { createApiKey, rotateApiKey } from '../../controllers/v2/authController';
 import { apiKeyAuth, hmacAuth } from '../../middlewares/v2/auth'; // Middleware for authentication
 
 const authRouter = express.Router();
 
+// Define the expected request body for rotate endpoint
+interface RotateRequestBody {
+    apiKey: string;
+}
+
 // Unprotected: Endpoint to generate the first API key and HMAC secret
 authRouter.post('/generate', async (req, res) => {
     try {
-        // Only allow the key to be generated once (simple protection to prevent misuse)
         const { apiKey, hmacSecret } = await createApiKey();
         res.status(200).json({ apiKey, hmacSecret });
     } catch (error) {
@@ -20,7 +24,7 @@ authRouter.post('/generate', async (req, res) => {
 });
 
 // Protected: Endpoint to rotate the existing API key and HMAC secret
-authRouter.post('/rotate', apiKeyAuth, hmacAuth, async (req, res) => {
+authRouter.post('/rotate', apiKeyAuth, hmacAuth, async (req: Request<Record<string, unknown>, unknown, RotateRequestBody>, res) => {
     try {
         const { apiKey, hmacSecret } = await rotateApiKey(req.body.apiKey);
         res.status(200).json({ apiKey, hmacSecret });

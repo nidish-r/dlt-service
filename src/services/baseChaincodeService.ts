@@ -6,24 +6,31 @@ import * as grpc from '@grpc/grpc-js';
 import { config } from '../config/index';
 import { TextDecoder } from 'util';
 
+// Define the type for the result of chaincode read
+interface ChaincodeReadResult {
+    data: string | Record<string, unknown>; // Adjust based on your expected result structure
+}
+
 const utf8Decoder = new TextDecoder();
 
 // Helper function to get the first file in a directory
 const getFirstDirFileName = async (dirPath: string): Promise<string> => {
     const files = await fs.readdir(dirPath);
-    if (!files || files.length === 0) {
+    if (files.length === 0) {
         throw new Error(`No files found in directory: ${dirPath}`);
     }
-    if (!files[0]) {
+    
+    const firstFile = files[0];
+    
+    if (!firstFile) {
         throw new Error(`No valid file found in directory: ${dirPath}`);
     }
-    return path.join(dirPath, files[0]);  // Return the first file
+    
+    return path.join(dirPath, firstFile);  // Return the first file
 };
 
 const newGrpcConnection = async () => {
     const caCertPath = path.resolve(config.cryptoPath, 'peers', 'peer0.org1.example.com', 'tls', 'ca.crt');
-    console.log(`TLS Cert Path: ${caCertPath}`);
-    
     const tlsRootCert = await fs.readFile(caCertPath);
     const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
     return new grpc.Client(config.peerEndpoint, tlsCredentials, {
@@ -34,8 +41,6 @@ const newGrpcConnection = async () => {
 const newIdentity = async () => {
     const certDirPath = path.resolve(config.cryptoPath, 'users', 'User1@org1.example.com', 'msp', 'signcerts');
     const certPath = await getFirstDirFileName(certDirPath);
-    console.log(`Cert Path: ${certPath}`);
-    
     const credentials = await fs.readFile(certPath);
     return { mspId: config.mspId, credentials };
 };
@@ -43,15 +48,13 @@ const newIdentity = async () => {
 const newSigner = async () => {
     const keyDirPath = path.resolve(config.cryptoPath, 'users', 'User1@org1.example.com', 'msp', 'keystore');
     const keyPath = await getFirstDirFileName(keyDirPath);
-    console.log(`Key Path: ${keyPath}`);
-    
     const privateKeyPem = await fs.readFile(keyPath);
     const privateKey = crypto.createPrivateKey(privateKeyPem);
     return signers.newPrivateKeySigner(privateKey);
 };
 
 export const baseChaincodeService = {
-    read: async (functionName: string, args: string[]) => {
+    read: async (functionName: string, args: string[]): Promise<ChaincodeReadResult> => {
         const client = await newGrpcConnection();
         const gateway = connect({
             client,
@@ -62,10 +65,12 @@ export const baseChaincodeService = {
         const contract = network.getContract(config.chaincodeName);
 
         const resultBytes = await contract.evaluateTransaction(functionName, ...args);
-        return JSON.parse(utf8Decoder.decode(resultBytes)); 
+        const result = JSON.parse(utf8Decoder.decode(resultBytes)) as ChaincodeReadResult;
+
+        return result;
     },
-    
-    write: async (functionName: string, args: string[]) => {
+
+    write: async (functionName: string, args: string[]): Promise<void> => {
         const client = await newGrpcConnection();
         const gateway = connect({
             client,

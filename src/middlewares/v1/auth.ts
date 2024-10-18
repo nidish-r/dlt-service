@@ -5,11 +5,16 @@ import * as crypto from 'crypto';
 // API Key Authentication Middleware
 export const apiKeyAuth = (req: Request, res: Response, next: NextFunction): void => {
     const apiKey = req.headers['x-api-key'] as string;
+
+    if (!apiKey) {
+        res.status(401).json({ message: 'Unauthorized: Missing API Key' });
+        return; // Explicit return to stop further execution
+    }
+
     if (apiKey === config.API_KEY) {
         next(); // Move to the next middleware or route handler
     } else {
         res.status(401).json({ message: 'Unauthorized: Invalid API Key' });
-        return; // Explicit return to stop further execution
     }
 };
 

@@ -9,26 +9,31 @@ const pool = new Pool({
     port: 5432,
 });
 
+interface ApiKeySecret {
+    apiKey: string;
+    hmacSecret: string;
+}
+
 // Function to retrieve any API Key and HMAC Secret if they exist
-export const getAnyApiKeyAndSecret = async (): Promise<{ apiKey: string, hmacSecret: string } | null> => {
+export const getAnyApiKeyAndSecret = async (): Promise<ApiKeySecret | null> => {
     const query = 'SELECT api_key, hmac_secret FROM api_keys LIMIT 1'; // Get the first key available
     const result = await pool.query(query);
 
     if (result.rows.length > 0) {
-        return result.rows[0];
+        return result.rows[0] as ApiKeySecret;
     } else {
         return null;
     }
 };
 
 // Function to retrieve API Key and HMAC Secret
-export const getApiKeyAndSecret = async (apiKey: string): Promise<{ apiKey: string, hmacSecret: string } | null> => {
+export const getApiKeyAndSecret = async (apiKey: string): Promise<ApiKeySecret | null> => {
     const query = 'SELECT api_key, hmac_secret FROM api_keys WHERE api_key = $1';
     const values = [apiKey];
     const result = await pool.query(query, values);
 
     if (result.rows.length > 0) {
-        return result.rows[0];
+        return result.rows[0] as ApiKeySecret;
     } else {
         return null;
     }
