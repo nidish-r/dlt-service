@@ -8,13 +8,15 @@ This documentation provides a detailed guide for setting up and using the Distri
 - [System Requirements](#system-requirements)
 - [Setup](#setup)
 - [Environment Variables](#environment-variables)
-- [Authentication](#authentication)
-  - [API Key Authentication](#api-key-authentication)
-  - [HMAC Authentication](#hmac-authentication)
-- [API Endpoints](#api-endpoints)
-  - [Read Request](#read-request)
-  - [Write Request](#write-request)
-- [Scripts for API Calls](#scripts-for-api-calls)
+- [v1 API Endpoints](#v1-api-endpoints)
+  - [Authentication](#authentication)
+    - [API Key Authentication](#api-key-authentication)
+    - [HMAC Authentication](#hmac-authentication)
+  - [API Endpoints](#api-endpoints)
+    - [Read Request](#read-request)
+    - [Write Request](#write-request)
+    - [Scripts for API Calls](#scripts-for-api-calls)
+- [v2 API Endpoints](#v2-api-endpoints)
 - [Error Handling](#error-handling)
 
 ## Overview
@@ -45,11 +47,9 @@ This DLT Service API is designed to interact with a Hyperledger Fabric network, 
     npm install
     ```
 
-3. Set up the PostgreSQL database with the required tables for storing API keys.
+3. Configure the `/config/index.ts` file with the required environment variables (see [Environment Variables](#environment-variables)).
 
-4. Configure the `.env` file with the required environment variables (see [Environment Variables](#environment-variables)).
-
-5. Start the application:
+4. Start the application:
     ```bash
     npm start
     ```
@@ -58,7 +58,7 @@ The DLT service will be running at `http://localhost:3000`.
 
 ## Environment Variables
 
-The service requires several environment variables to function correctly. These variables are defined in a `.env` file located at the project root.
+The service requires several environment variables to function correctly. These variables are defined in a `/config/index.ts` file located at the project root.
 
 Here’s an example `.env` file:
 
@@ -90,6 +90,9 @@ CRYPTO_PATH=/path/to/crypto/materials/fabric-samples/test-network/organizations/
 - **PEER_ENDPOINT**: The gRPC endpoint for the peer node.
 - **PEER_HOST_ALIAS**: The hostname for the peer node.
 - **CRYPTO_PATH**: The path to the Fabric network’s crypto materials.
+
+
+# v1 API Endpoints
 
 ## Authentication
 
@@ -133,7 +136,7 @@ Headers required for HMAC authentication:
 
 **Example cURL Request for Read**:
 ```bash
-curl -X POST http://localhost:3000/read \
+curl -X POST http://localhost:3000/v1/read \
 -H "Content-Type: application/json" \
 -H "x-api-key: your_default_api_key" \
 -H "x-signature: <calculated-signature>" \
@@ -157,7 +160,7 @@ To write data to the ledger, such as creating a new asset, use the `/write` endp
 
 **Example cURL Request for Write**:
 ```bash
-curl -X POST http://localhost:3000/write \
+curl -X POST http://localhost:3000/v1/write \
 -H "Content-Type: application/json" \
 -H "x-api-key: your_default_api_key" \
 -H "x-signature: <calculated-signature>" \
@@ -207,7 +210,7 @@ echo "Client Signature: $SIGNATURE"
 echo "Client HMAC_SECRET: $HMAC_SECRET"
 
 # Execute the cURL command
-curl -X POST http://localhost:3000/read \
+curl -X POST http://localhost:3000/v1/chaincode/read \
 -H "Content-Type: application/json" \
 -H "x-api-key: your_default_api_key" \
 -H "x-signature: $SIGNATURE" \
@@ -243,7 +246,7 @@ TIMESTAMP=$(date +%s)
 # Example asset with ID, Color, Size, Owner, and AppraisedValue
 PAYLOAD=$(echo -n '{
     "functionName": "CreateAsset",
-    "args": ["asset26", "blue", "10", "Alice", "5000"]
+    "args": ["asset27", "blue", "10", "Alice", "5000"]
 }' | jq -c .)
 
 # Generate HMAC signature using the payload and timestamp
@@ -255,8 +258,8 @@ echo "Client Timestamp: $TIMESTAMP"
 echo "Client Signature: $SIGNATURE"
 echo "Client HMAC_SECRET: $HMAC_SECRET"
 
-# Execute the cURL command for write operation (create asset)
-curl -X POST http://localhost:3000/write \
+# Execute the cURL command for write operation (create asset) in v1
+curl -X POST http://localhost:3000/v1/chaincode/write \
 -H "Content-Type: application/json" \
 -H "x-api-key: your_default_api_key" \
 -H "x-signature: $SIGNATURE" \
@@ -275,9 +278,21 @@ curl -X POST http://localhost:3000/write \
   ```bash
   ./read_asset.sh
   ```
-    This script generates an HMAC signature using the payload and timestamp and sends a POST request to the /read endpoint to retrieve asset details from the ledger.
+This script generates an HMAC signature using the payload and timestamp and sends a POST request to the /read endpoint to retrieve asset details from the ledger.
 
-  
+# v2 API Endpoints (WIP)
+
+The **v2 API Endpoints** offer an enhanced level of security and flexibility compared to the v1 version. In addition to the basic functionality for reading and writing chaincode on a Hyperledger Fabric network, v2 introduces the following key features:
+
+1. **API Key Generation and Rotation**: 
+   - The v2 API allows the creation and rotation of API keys dynamically, ensuring better security management. Users can generate their first API key via an unprotected endpoint. Subsequent key rotations must be done through a secure endpoint protected by both API key and HMAC authentication.
+
+2. **HMAC Authentication**: 
+   - Similar to v1, v2 continues to utilize HMAC-SHA256 signatures to verify the integrity of API requests. However, the secret used to generate these signatures can now be rotated alongside the API key.
+
+3. **Granular Access Control**: 
+   - v2 lays the foundation for implementing more granular access control mechanisms, such as assigning specific permissions or roles to API keys in future versions.
+
 ### Conclusion
 
 This DLT Service API allows secure and controlled access to the chaincode functions deployed on a Hyperledger Fabric network. By using API key authentication and HMAC signature verification, the service ensures that only authorized requests can query or modify the ledger.
