@@ -348,5 +348,3 @@ The **v2 API Endpoints** offer an enhanced level of security and flexibility com
 ### Conclusion
 
 This DLT Service API allows secure and controlled access to the chaincode functions deployed on a Hyperledger Fabric network. By using API key authentication and HMAC signature verification, the service ensures that only authorized requests can query or modify the ledger.
-
-For further inquiries or issues, please raise them in the issue tracker.
