@@ -13,5 +13,6 @@ export const config = {
     mspId: process.env.MSP_ID || 'Org1MSP',
     peerEndpoint: process.env.PEER_ENDPOINT || 'localhost:7051',
     peerHostAlias: process.env.PEER_HOST_ALIAS || 'peer0.org1.example.com',
-    cryptoPath: process.env.CRYPTO_PATH || path.resolve(__dirname, '../../../fabric-samples/test-network/organizations/peerOrganizations/org1.example.com'),
+    orgpPath: process.env.CRYPTO_PATH || path.resolve(__dirname, '../../organizations'),
+    cryptoPath: process.env.CRYPTO_PATH || path.resolve(__dirname, '../../organizations/peerOrganizations/org1.example.com'),
 };
