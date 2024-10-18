@@ -17,7 +17,7 @@ echo "Client Signature: $SIGNATURE"
 echo "Client HMAC_SECRET: $HMAC_SECRET"
 
 # Execute the cURL command
-curl -X POST http://localhost:3000/read \
+curl -X POST http://localhost:3000/v1/chaincode/read \
 -H "Content-Type: application/json" \
 -H "x-api-key: your_default_api_key" \
 -H "x-signature: $SIGNATURE" \

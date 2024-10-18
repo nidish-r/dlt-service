@@ -4,9 +4,9 @@ import * as crypto from 'crypto';
 import { connect, signers } from '@hyperledger/fabric-gateway';
 import * as grpc from '@grpc/grpc-js';
 import { config } from '../config/index';
-import { TextDecoder } from 'util'; // Re-add the missing import
+import { TextDecoder } from 'util';
 
-const utf8Decoder = new TextDecoder(); // Initialize the TextDecoder
+const utf8Decoder = new TextDecoder();
 
 // Helper function to get the first file in a directory
 const getFirstDirFileName = async (dirPath: string): Promise<string> => {
@@ -22,7 +22,7 @@ const getFirstDirFileName = async (dirPath: string): Promise<string> => {
 
 const newGrpcConnection = async () => {
     const caCertPath = path.resolve(config.cryptoPath, 'peers', 'peer0.org1.example.com', 'tls', 'ca.crt');
-    console.log(`TLS Cert Path: ${caCertPath}`); // Debugging
+    console.log(`TLS Cert Path: ${caCertPath}`);
     
     const tlsRootCert = await fs.readFile(caCertPath);
     const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
@@ -34,7 +34,7 @@ const newGrpcConnection = async () => {
 const newIdentity = async () => {
     const certDirPath = path.resolve(config.cryptoPath, 'users', 'User1@org1.example.com', 'msp', 'signcerts');
     const certPath = await getFirstDirFileName(certDirPath);
-    console.log(`Cert Path: ${certPath}`); // Debugging
+    console.log(`Cert Path: ${certPath}`);
     
     const credentials = await fs.readFile(certPath);
     return { mspId: config.mspId, credentials };
@@ -43,14 +43,14 @@ const newIdentity = async () => {
 const newSigner = async () => {
     const keyDirPath = path.resolve(config.cryptoPath, 'users', 'User1@org1.example.com', 'msp', 'keystore');
     const keyPath = await getFirstDirFileName(keyDirPath);
-    console.log(`Key Path: ${keyPath}`); // Debugging
+    console.log(`Key Path: ${keyPath}`);
     
     const privateKeyPem = await fs.readFile(keyPath);
     const privateKey = crypto.createPrivateKey(privateKeyPem);
     return signers.newPrivateKeySigner(privateKey);
 };
 
-export const chaincodeService = {
+export const baseChaincodeService = {
     read: async (functionName: string, args: string[]) => {
         const client = await newGrpcConnection();
         const gateway = connect({
@@ -62,8 +62,7 @@ export const chaincodeService = {
         const contract = network.getContract(config.chaincodeName);
 
         const resultBytes = await contract.evaluateTransaction(functionName, ...args);
-        const result = JSON.parse(utf8Decoder.decode(resultBytes)); // Use utf8Decoder to decode
-        return result;
+        return JSON.parse(utf8Decoder.decode(resultBytes)); 
     },
     
     write: async (functionName: string, args: string[]) => {
@@ -75,7 +74,7 @@ export const chaincodeService = {
         });
         const network = gateway.getNetwork(config.channelName);
         const contract = network.getContract(config.chaincodeName);
-        
+
         await contract.submitTransaction(functionName, ...args);
     }
 };

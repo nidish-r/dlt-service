@@ -8,7 +8,7 @@ TIMESTAMP=$(date +%s)
 # Example asset with ID, Color, Size, Owner, and AppraisedValue
 PAYLOAD=$(echo -n '{
     "functionName": "CreateAsset",
-    "args": ["asset26", "blue", "10", "Alice", "5000"]
+    "args": ["asset27", "blue", "10", "Alice", "5000"]
 }' | jq -c .)
 
 # Generate HMAC signature using the payload and timestamp
@@ -20,8 +20,8 @@ echo "Client Timestamp: $TIMESTAMP"
 echo "Client Signature: $SIGNATURE"
 echo "Client HMAC_SECRET: $HMAC_SECRET"
 
-# Execute the cURL command for write operation (create asset)
-curl -X POST http://localhost:3000/write \
+# Execute the cURL command for write operation (create asset) in v1
+curl -X POST http://localhost:3000/v1/chaincode/write \
 -H "Content-Type: application/json" \
 -H "x-api-key: your_default_api_key" \
 -H "x-signature: $SIGNATURE" \

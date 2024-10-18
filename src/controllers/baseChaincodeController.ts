@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { chaincodeService } from '../services/chaincodeService';
+import { chaincodeService } from '../services/v1/chaincodeService';
 
-export const chaincodeController = {
+export const baseChaincodeController = {
     read: async (req: Request, res: Response) => {
         const { functionName, args } = req.body;
         try {
@@ -15,7 +15,7 @@ export const chaincodeController = {
             }
         }
     },
-    
+
     write: async (req: Request, res: Response) => {
         const { functionName, args } = req.body;
         try {

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { config } from '../config/index';
+import { config } from '../../config/index';
 import * as crypto from 'crypto';
 
 // API Key Authentication Middleware
