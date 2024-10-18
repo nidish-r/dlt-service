@@ -1,25 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
 import { config } from '../config/index';
-import { getApiKeyAndSecret } from '../services/apiKeyService';
 import * as crypto from 'crypto';
 
 // API Key Authentication Middleware
-export const apiKeyAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const apiKeyAuth = (req: Request, res: Response, next: NextFunction): void => {
     const apiKey = req.headers['x-api-key'] as string;
-
-    if (!apiKey) {
-        res.status(401).json({ message: 'Unauthorized: Missing API Key' });
-        return;
-    }
-
-    const storedApiKey = await getApiKeyAndSecret(apiKey);
-    
-    if (storedApiKey) {
-        next(); // API Key is valid, proceed to the next middleware
+    if (apiKey === config.API_KEY) {
+        next(); // Move to the next middleware or route handler
     } else {
         res.status(401).json({ message: 'Unauthorized: Invalid API Key' });
+        return; // Explicit return to stop further execution
     }
 };
+
 
 export const hmacAuth = (req: Request, res: Response, next: NextFunction): void => {
     const signature = req.headers['x-signature'] as string;
