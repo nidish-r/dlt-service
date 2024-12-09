@@ -5,7 +5,7 @@ HMAC_SECRET="your_default_hmac_secret"
 TIMESTAMP=$(date +%s)
 
 # Serialize the payload to ensure consistent formatting
-PAYLOAD=$(echo -n '{"functionName": "ReadAsset", "args": ["asset1"]}' | jq -c .)
+PAYLOAD=$(echo -n '{"functionName": "ReadAsset", "args": ["asset27"]}' | jq -c .)
 
 # Generate HMAC signature using the payload and timestamp
 SIGNATURE=$(echo -n "$PAYLOAD$TIMESTAMP" | openssl dgst -sha256 -hmac "$HMAC_SECRET" | sed 's/^.* //')

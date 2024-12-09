@@ -1,26 +1,13 @@
-import { Request, Response } from 'express';
-import { chaincodeService } from '../services/v1/chaincodeService';
-
-// Define the expected shape of the request body
-interface ChaincodeRequestBody {
-    functionName: string;
-    args: string[];
-}
-
-// Use correct type for the read result
-interface ChaincodeReadResult {
-    id: string;
-    value: string;
-}
+import { chaincodeService } from '../services/v1/chaincodeService.js';
 
 export const baseChaincodeController = {
-    read: async (req: Request, res: Response) => {
-        // Type assertion to ensure req.body matches the expected structure
-        const { functionName, args } = req.body as ChaincodeRequestBody;
+    read: async (req, res) => {
+        // Extract functionName and args from the request body
+        const { functionName, args } = req.body;
 
         try {
-            // First cast result to unknown, then to ChaincodeReadResult
-            const result = await chaincodeService.read(functionName, args) as unknown as ChaincodeReadResult;
+            // Call the chaincode service's read function
+            const result = await chaincodeService.read(functionName, args);
 
             // Debug: log the result to ensure it's being returned as expected
             console.log('ChaincodeService.read result:', result);
@@ -37,9 +24,9 @@ export const baseChaincodeController = {
         }
     },
 
-    write: async (req: Request, res: Response) => {
-        // Type assertion to ensure req.body matches the expected structure
-        const { functionName, args } = req.body as ChaincodeRequestBody;
+    write: async (req, res) => {
+        // Extract functionName and args from the request body
+        const { functionName, args } = req.body;
 
         try {
             await chaincodeService.write(functionName, args);

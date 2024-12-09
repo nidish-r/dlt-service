@@ -1,20 +1,15 @@
 import { promises as fs } from 'fs';
-import * as path from 'path';
-import * as crypto from 'crypto';
+import path from 'path';
+import crypto from 'crypto';
 import { connect, signers } from '@hyperledger/fabric-gateway';
-import * as grpc from '@grpc/grpc-js';
-import { config } from '../config/index';
+import grpc from '@grpc/grpc-js';
+import { config } from '../config/index.js';
 import { TextDecoder } from 'util';
-
-// Define the type for the result of chaincode read
-interface ChaincodeReadResult {
-    data: string | Record<string, unknown>; // Adjust based on your expected result structure
-}
 
 const utf8Decoder = new TextDecoder();
 
 // Helper function to get the first file in a directory
-const getFirstDirFileName = async (dirPath: string): Promise<string> => {
+const getFirstDirFileName = async (dirPath) => {
     const files = await fs.readdir(dirPath);
     if (files.length === 0) {
         throw new Error(`No files found in directory: ${dirPath}`);
@@ -26,7 +21,7 @@ const getFirstDirFileName = async (dirPath: string): Promise<string> => {
         throw new Error(`No valid file found in directory: ${dirPath}`);
     }
     
-    return path.join(dirPath, firstFile);  // Return the first file
+    return path.join(dirPath, firstFile); // Return the first file
 };
 
 const newGrpcConnection = async () => {
@@ -54,7 +49,7 @@ const newSigner = async () => {
 };
 
 export const baseChaincodeService = {
-    read: async (functionName: string, args: string[]): Promise<ChaincodeReadResult> => {
+    read: async (functionName, args) => {
         const client = await newGrpcConnection();
         const gateway = connect({
             client,
@@ -65,12 +60,12 @@ export const baseChaincodeService = {
         const contract = network.getContract(config.chaincodeName);
 
         const resultBytes = await contract.evaluateTransaction(functionName, ...args);
-        const result = JSON.parse(utf8Decoder.decode(resultBytes)) as ChaincodeReadResult;
+        const result = JSON.parse(utf8Decoder.decode(resultBytes));
 
         return result;
     },
 
-    write: async (functionName: string, args: string[]): Promise<void> => {
+    write: async (functionName, args) => {
         const client = await newGrpcConnection();
         const gateway = connect({
             client,

@@ -1,10 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
-import { config } from '../../config/index';
-import * as crypto from 'crypto';
+import { config } from '../../config/index.js';
+import crypto from 'crypto';
 
 // API Key Authentication Middleware
-export const apiKeyAuth = (req: Request, res: Response, next: NextFunction): void => {
-    const apiKey = req.headers['x-api-key'] as string;
+export const apiKeyAuth = (req, res, next) => {
+    const apiKey = req.headers['x-api-key'];
 
     if (!apiKey) {
         res.status(401).json({ message: 'Unauthorized: Missing API Key' });
@@ -18,10 +17,9 @@ export const apiKeyAuth = (req: Request, res: Response, next: NextFunction): voi
     }
 };
 
-
-export const hmacAuth = (req: Request, res: Response, next: NextFunction): void => {
-    const signature = req.headers['x-signature'] as string;
-    const timestamp = req.headers['x-timestamp'] as string;
+export const hmacAuth = (req, res, next) => {
+    const signature = req.headers['x-signature'];
+    const timestamp = req.headers['x-timestamp'];
     const payload = JSON.stringify(req.body);
 
     // Logging the important values

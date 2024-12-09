@@ -1,8 +1,8 @@
 import express from 'express';
-import { config } from './config/index';
-import v1ChaincodeRouter from './routes/v1/chaincodeRouter';
-import v2AuthRouter from './routes/v2/authRouter';
-import v2ChaincodeRouter from './routes/v2/chaincodeRouter';
+import { config } from './config/index.js';
+import v1ChaincodeRouter from './routes/v1/chaincodeRouter.js';
+import v2AuthRouter from './routes/v2/authRouter.js';
+import v2ChaincodeRouter from './routes/v2/chaincodeRouter.js';
 
 const app = express();
 

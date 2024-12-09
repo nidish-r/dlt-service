@@ -1,10 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
-import { getApiKeyAndSecret } from '../../services/v2/apiKeyService';
-import * as crypto from 'crypto';
+import { getApiKeyAndSecret } from '../../services/v2/apiKeyService.js';
+import crypto from 'crypto';
 
 // API Key Authentication Middleware
-export const apiKeyAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const apiKey = req.headers['x-api-key'] as string;
+export const apiKeyAuth = async (req, res, next) => {
+    const apiKey = req.headers['x-api-key'];
 
     if (!apiKey) {
         res.status(401).json({ message: 'Unauthorized: Missing API Key' });
@@ -21,10 +20,10 @@ export const apiKeyAuth = async (req: Request, res: Response, next: NextFunction
 };
 
 // HMAC Authentication Middleware
-export const hmacAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const signature = req.headers['x-signature'] as string;
-    const timestamp = req.headers['x-timestamp'] as string;
-    const apiKey = req.headers['x-api-key'] as string;
+export const hmacAuth = async (req, res, next) => {
+    const signature = req.headers['x-signature'];
+    const timestamp = req.headers['x-timestamp'];
+    const apiKey = req.headers['x-api-key'];
     const payload = JSON.stringify(req.body);
 
     if (!signature || !timestamp || !apiKey) {
